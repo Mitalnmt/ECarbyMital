@@ -1,0 +1,36 @@
+.done {
+  background-color: lightgreen;  /* Xe đã trả về, màu xanh */
+}
+
+.overdue {
+  background-color: lightcoral;  /* Xe hết thời gian, màu đỏ */
+}
+
+.countdown {
+  font-weight: bold;
+  color: red;
+}
+
+.old-car-code {
+  font-size: 0.3em !important;
+  color: #6ec1ff !important;
+  margin-right: 4px;
+}
+
+.duplicate-done {
+  animation: blink-yellow 1s infinite alternate;
+  background-color: #fff8b0 !important;
+}
+@keyframes blink-yellow {
+  from { background-color: #fff8b0; }
+  to { background-color: #ffe066; }
+}
+
+.null-time-done {
+  background-color: #2196f3 !important;
+  color: #fff;
+}
+
+#car-list .btn {
+  margin: 5px;
+}
