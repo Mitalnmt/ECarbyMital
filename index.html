@@ -68,6 +68,7 @@
     Chọn Xe
   </button>
   <button class="btn btn-danger" id="deleteAllBtn" style="position: fixed; bottom: 20px; right: 20px;">Xóa tất cả</button>
+  <button class="btn btn-secondary" id="settingsBtn" style="position: fixed; bottom: 20px; left: 20px;">Cài đặt</button>
 
   <!-- Modal -->
 <div class="modal fade" id="carModal" tabindex="-1" aria-labelledby="carModalLabel" aria-hidden="true">
@@ -156,6 +157,37 @@
     </div>
   </div>
 
+  <!-- Modal cài đặt -->
+  <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="settingsModalLabel">Cài đặt</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="defaultTimeInput" class="form-label">Thời gian đếm ngược mặc định:</label>
+            <div class="row">
+              <div class="col-6">
+                <label for="defaultMinutesInput" class="form-label">Phút:</label>
+                <input type="number" class="form-control" id="defaultMinutesInput" min="0" max="59" value="15">
+              </div>
+              <div class="col-6">
+                <label for="defaultSecondsInput" class="form-label">Giây:</label>
+                <input type="number" class="form-control" id="defaultSecondsInput" min="0" max="59" value="0">
+              </div>
+            </div>
+            <small class="text-muted">Thời gian mặc định: <span id="defaultTimeDisplay">15:00</span></small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" id="saveSettingsBtn">Lưu cài đặt</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>

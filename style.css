@@ -31,6 +31,24 @@
   color: #fff;
 }
 
+.old-car-row .old-car-code-italic, .old-car-code-italic {
+  font-style: italic;
+  color: #90a4ae;
+  font-size: 0.8em;
+}
+.old-car-row td {
+  background: #f8f9fa;
+  border: none !important;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 #car-list .btn {
   margin: 5px;
+}
+
+#car-list .old-car-code-italic {
+  font-size: 0.7em !important;
+  font-style: italic !important;
+  color: #90a4ae !important;
 }

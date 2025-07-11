@@ -1,6 +1,8 @@
 let carList = [];
 let carIdCounter = 1;
 let changeCarIndex = null; // null: chọn xe mới, số: đổi mã xe
+let defaultTimeMinutes = 15; // Thời gian mặc định (phút)
+let defaultTimeSeconds = 0; // Thời gian mặc định (giây)
 
 // Thêm xe vào danh sách hoặc đổi mã xe
 function selectCarCode(carCode) {
@@ -12,8 +14,12 @@ function selectCarCode(carCode) {
     if (changeCarIndex === null) {
       addCar(carCode);
     } else {
+      // Lưu tất cả mã xe cũ vào mảng oldCarCodes
+      if (!carList[changeCarIndex].oldCarCodes) {
+        carList[changeCarIndex].oldCarCodes = [];
+      }
       if (carList[changeCarIndex].carCode !== carCode) {
-        carList[changeCarIndex].oldCarCode = carList[changeCarIndex].carCode;
+        carList[changeCarIndex].oldCarCodes.push(carList[changeCarIndex].carCode);
       }
       carList[changeCarIndex].carCode = carCode;
       changeCarIndex = null;
@@ -36,7 +42,8 @@ function addCar(carCode) {
   const now = new Date();
   const timeOut = new Date(now.getTime());  // Thời gian ra là thời gian hiện tại
   const timeIn = new Date(timeOut.getTime());  // Thời gian vào là 15 phút sau thời gian ra
-  timeIn.setMinutes(timeOut.getMinutes() + 15);  // Thêm 15 phút vào thời gian ra để có thời gian vào
+  timeIn.setMinutes(timeOut.getMinutes() + defaultTimeMinutes);
+  timeIn.setSeconds(timeOut.getSeconds() + defaultTimeSeconds);  // Thêm thời gian mặc định vào thời gian ra để có thời gian vào
 
   const car = {
     id: carIdCounter++,
@@ -70,6 +77,7 @@ function renderCarList() {
   });
 
   carList.forEach((car, index) => {
+    // Dòng chính
     const row = tbody.insertRow();
 
     // Kiểm tra trạng thái để set class
@@ -93,13 +101,13 @@ function renderCarList() {
     const cell2 = row.insertCell(1);
     cell2.innerHTML = `<input type="checkbox" ${car.paid ? 'checked' : ''} onclick="togglePaid(${index})">`;
 
-    // Mã xe
+    // Mã xe mới + các mã xe cũ (nếu có)
     const cell3 = row.insertCell(2);
-    if (car.oldCarCode) {
-      cell3.innerHTML = `<span class="old-car-code">${car.oldCarCode}</span> <span>${car.carCode}</span>`;
-    } else {
-      cell3.textContent = car.carCode;
+    let carCodeHtml = `<span>${car.carCode}</span>`;
+    if (car.oldCarCodes && car.oldCarCodes.length > 0) {
+      carCodeHtml += ` <span class='old-car-code-italic'>(` + car.oldCarCodes.map(code => `${code}`).join(', ') + `)</span>`;
     }
+    cell3.innerHTML = carCodeHtml;
 
     // Thời gian ra (đã đổi tên thành "Thời gian")
     const cell4 = row.insertCell(3);
@@ -119,6 +127,8 @@ function renderCarList() {
       <button class="btn btn-info" onclick="openTimeModal(${index})">Time</button>
       <button class="btn btn-danger" onclick="deleteCar(${index})">Xóa</button>
     `;
+
+    // Không render dòng phụ nữa
   });
 
   // Cập nhật đếm ngược mỗi giây
@@ -167,6 +177,15 @@ function updateCountdowns() {
 function togglePaid(index) {
   carList[index].paid = !carList[index].paid;
   saveCarListToStorage();
+  // Chỉ cập nhật checkbox, không render lại toàn bộ bảng
+  const tbody = document.getElementById('car-list').getElementsByTagName('tbody')[0];
+  const row = tbody.rows[index];
+  if (row) {
+    const checkbox = row.cells[1].querySelector('input[type="checkbox"]');
+    if (checkbox) {
+      checkbox.checked = carList[index].paid;
+    }
+  }
 }
 
 // Đổi mã xe
@@ -272,6 +291,7 @@ function loadCarListFromStorage() {
 
 // Gọi khi trang load
 loadCarListFromStorage();
+loadSettings();
 renderCarList();
 
 // --- Xóa tất cả ---
@@ -334,17 +354,127 @@ function changeTimeByDelta(deltaMin) {
   renderCarList();
 }
 
-if (minus5Btn) minus5Btn.onclick = () => { changeTimeByDelta(-5); };
-if (minus1Btn) minus1Btn.onclick = () => { changeTimeByDelta(-1); };
-if (plus1Btn) plus1Btn.onclick = () => { changeTimeByDelta(1); };
-if (plus5Btn) plus5Btn.onclick = () => { changeTimeByDelta(5); };
-if (nullTimeBtn) nullTimeBtn.onclick = () => {
-  if (currentTimeIndex === null) return;
-  const car = carList[currentTimeIndex];
-  car.isNullTime = true;
-  car.done = true;
-  car.nullStartTime = Date.now();
-  saveCarListToStorage();
-  renderCarList();
-  if (timeModal) timeModal.hide();
-};
+// Gán event listener một lần duy nhất
+if (minus5Btn) {
+  minus5Btn.onclick = () => { 
+    changeTimeByDelta(-5); 
+  };
+}
+if (minus1Btn) {
+  minus1Btn.onclick = () => { 
+    changeTimeByDelta(-1); 
+  };
+}
+if (plus1Btn) {
+  plus1Btn.onclick = () => { 
+    changeTimeByDelta(1); 
+  };
+}
+if (plus5Btn) {
+  plus5Btn.onclick = () => { 
+    changeTimeByDelta(5); 
+  };
+}
+if (nullTimeBtn) {
+  nullTimeBtn.onclick = () => {
+    if (currentTimeIndex === null) return;
+    const car = carList[currentTimeIndex];
+    car.isNullTime = true;
+    car.done = true;
+    car.nullStartTime = Date.now();
+    saveCarListToStorage();
+    renderCarList();
+    if (timeModal) timeModal.hide();
+  };
+}
+
+// Reset currentTimeIndex khi đóng modal
+if (timeModalEl) {
+  timeModalEl.addEventListener('hidden.bs.modal', function() {
+    currentTimeIndex = null;
+  });
+}
+
+// --- Cài đặt ---
+const settingsBtn = document.getElementById('settingsBtn');
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+const settingsModalEl = document.getElementById('settingsModal');
+const defaultMinutesInput = document.getElementById('defaultMinutesInput');
+const defaultSecondsInput = document.getElementById('defaultSecondsInput');
+let settingsModal = null;
+if (settingsModalEl) {
+  settingsModal = bootstrap.Modal.getOrCreateInstance(settingsModalEl);
+}
+if (settingsBtn && settingsModal) {
+  settingsBtn.addEventListener('click', function() {
+    loadSettings();
+    settingsModal.show();
+  });
+}
+if (saveSettingsBtn && settingsModal) {
+  saveSettingsBtn.addEventListener('click', function() {
+    saveSettings();
+    settingsModal.hide();
+  });
+}
+if (defaultMinutesInput) {
+  defaultMinutesInput.addEventListener('input', updateDefaultTimeDisplay);
+}
+if (defaultSecondsInput) {
+  defaultSecondsInput.addEventListener('input', updateDefaultTimeDisplay);
+}
+
+function loadSettings() {
+  const savedDefaultTime = localStorage.getItem('defaultTimeMinutes');
+  const savedDefaultSeconds = localStorage.getItem('defaultTimeSeconds');
+  if (savedDefaultTime) {
+    defaultTimeMinutes = Number(savedDefaultTime);
+  }
+  if (savedDefaultSeconds) {
+    defaultTimeSeconds = Number(savedDefaultSeconds);
+  }
+  const defaultMinutesInput = document.getElementById('defaultMinutesInput');
+  const defaultSecondsInput = document.getElementById('defaultSecondsInput');
+  const defaultTimeDisplay = document.getElementById('defaultTimeDisplay');
+  if (defaultMinutesInput) {
+    defaultMinutesInput.value = defaultTimeMinutes;
+  }
+  if (defaultSecondsInput) {
+    defaultSecondsInput.value = defaultTimeSeconds;
+  }
+  if (defaultTimeDisplay) {
+    defaultTimeDisplay.textContent = `${String(defaultTimeMinutes).padStart(2, '0')}:${String(defaultTimeSeconds).padStart(2, '0')}`;
+  }
+}
+
+function saveSettings() {
+  const defaultMinutesInput = document.getElementById('defaultMinutesInput');
+  const defaultSecondsInput = document.getElementById('defaultSecondsInput');
+  if (defaultMinutesInput) {
+    defaultTimeMinutes = Number(defaultMinutesInput.value);
+    localStorage.setItem('defaultTimeMinutes', defaultTimeMinutes);
+  }
+  if (defaultSecondsInput) {
+    defaultTimeSeconds = Number(defaultSecondsInput.value);
+    localStorage.setItem('defaultTimeSeconds', defaultTimeSeconds);
+  }
+  const defaultTimeDisplay = document.getElementById('defaultTimeDisplay');
+  if (defaultTimeDisplay) {
+    defaultTimeDisplay.textContent = `${String(defaultTimeMinutes).padStart(2, '0')}:${String(defaultTimeSeconds).padStart(2, '0')}`;
+  }
+}
+
+function updateDefaultTimeDisplay() {
+  const defaultMinutesInput = document.getElementById('defaultMinutesInput');
+  const defaultSecondsInput = document.getElementById('defaultSecondsInput');
+  const defaultTimeDisplay = document.getElementById('defaultTimeDisplay');
+  if (defaultMinutesInput) {
+    defaultTimeMinutes = Number(defaultMinutesInput.value);
+  }
+  if (defaultSecondsInput) {
+    defaultTimeSeconds = Number(defaultSecondsInput.value);
+  }
+  if (defaultTimeDisplay) {
+    defaultTimeDisplay.textContent = `${String(defaultTimeMinutes).padStart(2, '0')}:${String(defaultTimeSeconds).padStart(2, '0')}`;
+  }
+}
