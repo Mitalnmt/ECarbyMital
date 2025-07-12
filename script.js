@@ -100,6 +100,9 @@ function renderCarList() {
     // Trạng thái
     const cell2 = row.insertCell(1);
     cell2.innerHTML = `<input type="checkbox" ${car.paid ? 'checked' : ''} onclick="togglePaid(${index})">`;
+    if (car.note) {
+      cell2.innerHTML += ` <span class='car-note'>${car.note}</span>`;
+    }
 
     // Mã xe mới + các mã xe cũ (nếu có)
     const cell3 = row.insertCell(2);
@@ -123,9 +126,8 @@ function renderCarList() {
     const cell6 = row.insertCell(5); // Đây là cột thứ 6 (index 5)
     cell6.innerHTML = `
       <button class="btn btn-success" onclick="toggleDone(${index})">${car.done ? 'Resume' : 'Done'}</button>
-      <button class="btn btn-warning" onclick="changeCarCode(${index})">Change ID</button>
-      <button class="btn btn-info" onclick="openTimeModal(${index})">Time</button>
-      <button class="btn btn-danger" onclick="deleteCar(${index})">Xóa</button>
+      <button class="btn btn-warning" onclick="changeCarCode(${index})">Đổi xe</button>
+      <button class='btn btn-secondary' onclick='openRowActionModal(${index})'>...</button>
     `;
 
     // Không render dòng phụ nữa
@@ -393,6 +395,47 @@ if (timeModalEl) {
   timeModalEl.addEventListener('hidden.bs.modal', function() {
     currentTimeIndex = null;
   });
+}
+
+// --- Modal thao tác dòng ---
+let currentRowActionIndex = null;
+const rowActionModalEl = document.getElementById('rowActionModal');
+const rowActionTimeBtn = document.getElementById('rowActionTimeBtn');
+const rowActionDeleteBtn = document.getElementById('rowActionDeleteBtn');
+const rowActionNoteBtn = document.getElementById('rowActionNoteBtn');
+let rowActionModal = null;
+if (rowActionModalEl) {
+  rowActionModal = bootstrap.Modal.getOrCreateInstance(rowActionModalEl);
+}
+function openRowActionModal(index) {
+  currentRowActionIndex = index;
+  if (rowActionModal) rowActionModal.show();
+}
+if (rowActionTimeBtn) {
+  rowActionTimeBtn.onclick = function() {
+    if (currentRowActionIndex !== null) openTimeModal(currentRowActionIndex);
+    if (rowActionModal) rowActionModal.hide();
+  };
+}
+if (rowActionDeleteBtn) {
+  rowActionDeleteBtn.onclick = function() {
+    if (currentRowActionIndex !== null) deleteCar(currentRowActionIndex);
+    if (rowActionModal) rowActionModal.hide();
+  };
+}
+if (rowActionNoteBtn) {
+  rowActionNoteBtn.onclick = function() {
+    if (currentRowActionIndex !== null) {
+      const car = carList[currentRowActionIndex];
+      const note = prompt('Nhập ghi chú cho xe:', car.note || '');
+      if (note !== null) {
+        car.note = note.trim();
+        saveCarListToStorage();
+        renderCarList();
+      }
+    }
+    if (rowActionModal) rowActionModal.hide();
+  };
 }
 
 // --- Cài đặt ---

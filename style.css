@@ -62,3 +62,10 @@
 #car-list tr.overdue-unpaid td {
   background-color: #ffe066 !important;
 }
+
+.car-note {
+  font-size: 0.9em;
+  color: #888;
+  font-style: italic;
+  margin-left: 6px;
+}
