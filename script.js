@@ -478,3 +478,65 @@ function updateDefaultTimeDisplay() {
     defaultTimeDisplay.textContent = `${String(defaultTimeMinutes).padStart(2, '0')}:${String(defaultTimeSeconds).padStart(2, '0')}`;
   }
 }
+
+// --- Xe tạm thời ---
+function getTempCars() {
+  const temp = localStorage.getItem('tempCars');
+  return temp ? JSON.parse(temp) : [];
+}
+function saveTempCars(tempCars) {
+  localStorage.setItem('tempCars', JSON.stringify(tempCars));
+}
+function addTempCar(code) {
+  let tempCars = getTempCars();
+  code = code.trim();
+  if (!code) return;
+  // Không thêm trùng
+  if (tempCars.includes(code)) return;
+  tempCars.push(code);
+  saveTempCars(tempCars);
+  renderTempCarButtons();
+}
+function renderTempCarButtons() {
+  // Tìm modal chọn xe
+  const modalBody = document.querySelector('#carModal .modal-body');
+  if (!modalBody) return;
+  // Xóa các nút xe tạm thời cũ
+  const oldTempDiv = document.getElementById('tempCarBtnGroup');
+  if (oldTempDiv) oldTempDiv.remove();
+  const tempCars = getTempCars();
+  if (tempCars.length === 0) return;
+  // Tạo nhóm nút mới
+  const div = document.createElement('div');
+  div.className = 'mb-2';
+  div.id = 'tempCarBtnGroup';
+  tempCars.forEach(code => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-outline-primary m-1';
+    btn.textContent = code;
+    btn.onclick = function() { selectCarCode(code); };
+    div.appendChild(btn);
+  });
+  // Thêm vào đầu modal
+  modalBody.insertBefore(div, modalBody.firstChild);
+}
+// Gán sự kiện cho nút thêm xe tạm thời
+const addTempCarBtn = document.getElementById('addTempCarBtn');
+const tempCarInput = document.getElementById('tempCarInput');
+if (addTempCarBtn && tempCarInput) {
+  addTempCarBtn.onclick = function() {
+    addTempCar(tempCarInput.value);
+    tempCarInput.value = '';
+  };
+  tempCarInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      addTempCar(tempCarInput.value);
+      tempCarInput.value = '';
+    }
+  });
+}
+// Khi mở modal chọn xe, render lại xe tạm thời
+const carModalEl = document.getElementById('carModal');
+if (carModalEl) {
+  carModalEl.addEventListener('show.bs.modal', renderTempCarButtons);
+}

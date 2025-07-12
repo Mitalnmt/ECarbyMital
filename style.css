@@ -52,3 +52,13 @@
   font-style: italic !important;
   color: #90a4ae !important;
 }
+
+#car-list input[type="checkbox"] {
+  width: 1.5em;
+  height: 1.5em;
+  accent-color: #2196f3;
+}
+
+#car-list tr.overdue-unpaid td {
+  background-color: #ffe066 !important;
+}

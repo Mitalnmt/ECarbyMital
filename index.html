@@ -95,11 +95,16 @@
           <div class="mb-2">
             <button class="btn btn-secondary m-1" onclick="selectCarCode('CC')">CC</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('CX')">CX</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('C1')">C1</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('C2')">C2</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('C3')">C3</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('C4')">C4</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('M1')">M1</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('M2')">M2</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('M3')">M3</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('XĐ')">XĐ</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('XT')">XT</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('XV')">XV</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('D3')">D3</button>
           </div>
           <div class="mb-2">
@@ -115,6 +120,7 @@
             <button class="btn btn-secondary m-1" onclick="selectCarCode('ĐC')">ĐC</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('VH')">VH</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('03')">03</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('06')">06</button>
             <button class="btn btn-secondary m-1" onclick="selectCarCode('09')">09</button>
           </div>
         </div>
@@ -179,6 +185,14 @@
               </div>
             </div>
             <small class="text-muted">Thời gian mặc định: <span id="defaultTimeDisplay">15:00</span></small>
+          </div>
+          <div class="mb-3">
+            <label for="tempCarInput" class="form-label">Thêm xe tạm thời:</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="tempCarInput" placeholder="Nhập mã xe...">
+              <button class="btn btn-primary" id="addTempCarBtn" type="button">Thêm</button>
+            </div>
+            <small class="text-muted">Xe tạm thời sẽ xuất hiện trong danh sách chọn xe cho đến khi bạn xóa cache trình duyệt.</small>
           </div>
         </div>
         <div class="modal-footer">
