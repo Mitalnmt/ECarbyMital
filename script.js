@@ -172,7 +172,21 @@ function getRemainingTimeInMillis(timeIn, car) {
 
 // Cập nhật tất cả thời gian còn lại
 function updateCountdowns() {
-  renderCarList();  // Re-render the list to update countdowns and colors
+  // Kiểm tra xe hết thời gian để cảnh báo
+  let hasOverdue = false;
+  carList.forEach((car, idx) => {
+    if (!car.done && !car.isNullTime && getRemainingTimeInMillis(car.timeIn, car) <= 0) {
+      if (!overdueNotifiedIds.has(car.id)) {
+        notifyOverdue(car);
+        overdueNotifiedIds.add(car.id);
+      }
+      hasOverdue = true;
+    } else {
+      // Nếu xe không còn overdue, bỏ khỏi set để có thể cảnh báo lại nếu reset
+      overdueNotifiedIds.delete(car.id);
+    }
+  });
+  renderCarList();
 }
 
 // Toggle trạng thái thanh toán
@@ -582,4 +596,59 @@ if (addTempCarBtn && tempCarInput) {
 const carModalEl = document.getElementById('carModal');
 if (carModalEl) {
   carModalEl.addEventListener('show.bs.modal', renderTempCarButtons);
+}
+
+// --- Cảnh báo xe hết thời gian ---
+let overdueNotifiedIds = new Set();
+function notifyOverdue(car) {
+  // Hiện toast
+  const toastBody = document.getElementById('overdueToastBody');
+  if (toastBody) {
+    toastBody.textContent = `Xe ${car.carCode} đã hết thời gian!`;
+  }
+  const toastEl = document.getElementById('overdueToast');
+  if (toastEl) {
+    const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+    toast.show();
+  }
+  // Phát âm thanh beep
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+    oscillator.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.3);
+    oscillator.onended = () => ctx.close();
+  } catch (e) {}
+  // Rung thiết bị nếu hỗ trợ
+  if (navigator.vibrate) {
+    navigator.vibrate([200, 100, 200]);
+  }
+  // Hiện notification nếu đã cấp quyền
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('Xe hết thời gian', {
+      body: `Xe ${car.carCode} đã hết thời gian!`,
+      icon: '', // Có thể thêm icon nếu muốn
+    });
+  }
+}
+
+// --- Notification xin quyền ---
+const enableNotifyBtn = document.getElementById('enableNotifyBtn');
+if (enableNotifyBtn) {
+  enableNotifyBtn.onclick = function() {
+    if (!('Notification' in window)) {
+      alert('Trình duyệt không hỗ trợ thông báo!');
+      return;
+    }
+    Notification.requestPermission().then(function(permission) {
+      if (permission === 'granted') {
+        alert('Đã bật thông báo!');
+      } else {
+        alert('Bạn đã từ chối hoặc chưa cấp quyền thông báo.');
+      }
+    });
+  };
 }
