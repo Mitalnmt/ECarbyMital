@@ -52,8 +52,8 @@
           <th>#</th>
           <th>Trạng thái</th>
           <th>Mã xe</th>
-          <th>Thời gian thuê</th>
-          <th>Thời gian còn lại</th>
+          <th>Thời gian</th>
+          <th>Còn lại</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -63,11 +63,11 @@
     </table>
   </div>
 
-  <!-- Button at the bottom -->
-  <button class="btn btn-primary" id="showModalBtn" data-bs-toggle="modal" data-bs-target="#carModal" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);">
-    Chọn Xe
-  </button>
-  <button class="btn btn-secondary" id="settingsBtn" style="position: fixed; bottom: 20px; left: 20px;">Cài đặt</button>
+  <!-- Bottom bar with two buttons -->
+  <div id="bottomBar" class="d-flex justify-content-between align-items-center px-3 py-2">
+    <button class="btn btn-secondary" id="settingsBtn">Cài đặt</button>
+    <button class="btn btn-primary mx-auto" id="showModalBtn" data-bs-toggle="modal" data-bs-target="#carModal">Chọn Xe</button>
+  </div>
 
   <!-- Modal -->
 <div class="modal fade" id="carModal" tabindex="-1" aria-labelledby="carModalLabel" aria-hidden="true">

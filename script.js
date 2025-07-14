@@ -2,7 +2,7 @@ let carList = [];
 let carIdCounter = 1;
 let changeCarIndex = null; // null: chọn xe mới, số: đổi mã xe
 let defaultTimeMinutes = 15; // Thời gian mặc định (phút)
-let defaultTimeSeconds = 0; // Thời gian mặc định (giây)
+let defaultTimeSeconds = 30; // Thời gian mặc định (giây)
 
 // Thêm xe vào danh sách hoặc đổi mã xe
 function selectCarCode(carCode) {
@@ -112,10 +112,11 @@ function renderCarList() {
     }
     cell3.innerHTML = carCodeHtml;
 
-    // Thời gian ra (đã đổi tên thành "Thời gian")
+    // Thời gian ra và vào (hiển thị cả hai)
     const cell4 = row.insertCell(3);
     const timeOutFormatted = car.timeOut.toLocaleTimeString();
-    cell4.textContent = timeOutFormatted;
+    const timeInFormatted = car.timeIn.toLocaleTimeString();
+    cell4.innerHTML = `<div><span style='font-size:0.95em;'>Ra: <b>${timeOutFormatted}</b></span><br><span style='font-size:0.9em;color:#2196f3;'>Vào: <b>${timeInFormatted}</b></span></div>`;
 
     // Thời gian còn lại (hiển thị đếm ngược)
     const cell5 = row.insertCell(4);
@@ -330,6 +331,7 @@ if (deleteAllBtn) {
     confirmDeleteAllCount = 0;
     if (confirmDeleteAllCountSpan) confirmDeleteAllCountSpan.textContent = '0';
     if (confirmDeleteAllModal) confirmDeleteAllModal.show();
+    if (settingsModal) settingsModal.hide(); // Đóng modal cài đặt
   });
 }
 if (confirmDeleteAllBtn) {
