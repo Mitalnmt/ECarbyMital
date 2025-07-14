@@ -63,11 +63,9 @@
     </table>
   </div>
 
-  <!-- Bottom bar with two buttons -->
-  <div id="bottomBar" class="d-flex justify-content-between align-items-center px-3 py-2">
-    <button class="btn btn-secondary" id="settingsBtn">Cài đặt</button>
-    <button class="btn btn-primary mx-auto" id="showModalBtn" data-bs-toggle="modal" data-bs-target="#carModal">Chọn Xe</button>
-  </div>
+  <!-- Floating Chọn Xe button -->
+  <button class="btn btn-primary" id="showModalBtn" data-bs-toggle="modal" data-bs-target="#carModal" style="position: fixed; left: 50%; transform: translateX(-50%); bottom: 20px; z-index: 1100; min-width: 120px;">Chọn Xe</button>
+  <button class="btn btn-secondary" id="settingsBtn" style="position: fixed; left: 20px; bottom: 20px; z-index: 1100;">Cài đặt</button>
 
   <!-- Modal -->
 <div class="modal fade" id="carModal" tabindex="-1" aria-labelledby="carModalLabel" aria-hidden="true">
