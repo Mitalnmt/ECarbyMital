@@ -659,3 +659,60 @@ if (enableNotifyBtn) {
     });
   };
 }
+
+// --- Đăng nhập khi vào trang ---
+window.addEventListener('DOMContentLoaded', function() {
+  const loginModalEl = document.getElementById('loginModal');
+  const loginUsernameInput = document.getElementById('loginUsername');
+  const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+  let loginModal = null;
+  if (loginModalEl) {
+    loginModal = bootstrap.Modal.getOrCreateInstance(loginModalEl);
+    // Kiểm tra localStorage
+    const savedUsername = localStorage.getItem('@');
+    if (!savedUsername) {
+      loginModal.show();
+      setTimeout(() => { if (loginUsernameInput) loginUsernameInput.focus(); }, 400);
+    }
+    if (loginSubmitBtn && loginUsernameInput) {
+      loginSubmitBtn.onclick = function() {
+        const username = loginUsernameInput.value.trim();
+        if (!username) {
+          loginUsernameInput.classList.add('is-invalid');
+          loginUsernameInput.focus();
+          return;
+        }
+        localStorage.setItem('@', username);
+        loginModal.hide();
+      };
+      loginUsernameInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') loginSubmitBtn.click();
+      });
+      loginUsernameInput.addEventListener('input', function() {
+        loginUsernameInput.classList.remove('is-invalid');
+      });
+    }
+    // Nút View mở link mới
+    const loginViewBtn = document.getElementById('loginViewBtn');
+    const loginViewUrl = 'https://mitalnmt.github.io/ECarView/'; // Có thể thay đổi sau này
+    if (loginViewBtn) {
+      loginViewBtn.onclick = function() {
+        window.open(loginViewUrl, '_blank');
+      };
+    }
+  }
+  // Nút logout trong modal cài đặt
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.onclick = function() {
+      localStorage.removeItem('@');
+      // Đóng modal cài đặt nếu đang mở
+      if (settingsModal) settingsModal.hide();
+      // Hiện lại modal đăng nhập
+      if (loginModal) {
+        setTimeout(() => loginModal.show(), 300);
+        setTimeout(() => { if (loginUsernameInput) loginUsernameInput.focus(); }, 700);
+      }
+    };
+  }
+});
