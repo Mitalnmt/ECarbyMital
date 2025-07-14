@@ -233,6 +233,22 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAj8MNZXEN1tQaOqZ4jGxGhX04IWAW437s",
+      authDomain: "xehtml.firebaseapp.com",
+      databaseURL: "https://xehtml-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "xehtml",
+      storageBucket: "xehtml.firebasestorage.app",
+      messagingSenderId: "295057234622",
+      appId: "1:295057234622:web:814425305c34e22cf81cef",
+      measurementId: "G-CEQ6GP1D3Z"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+  </script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -280,7 +280,7 @@ function deleteCar(index) {
   renderCarList();
 }
 
-// --- Lưu trữ localStorage ---
+// --- Lưu trữ Firebase Realtime Database ---
 function saveCarListToStorage() {
   // Chuyển Date thành string ISO để lưu
   const data = carList.map(car => ({
@@ -288,19 +288,24 @@ function saveCarListToStorage() {
     timeOut: car.timeOut.toISOString(),
     timeIn: car.timeIn.toISOString(),
   }));
-  localStorage.setItem('carList', JSON.stringify(data));
-  localStorage.setItem('carIdCounter', carIdCounter);
+  window.db.ref('carList').set(data);
+  localStorage.setItem('carIdCounter', carIdCounter); // vẫn lưu idCounter local
 }
 
 function loadCarListFromStorage() {
-  const data = localStorage.getItem('carList');
-  if (data) {
-    carList = JSON.parse(data).map(car => ({
-      ...car,
-      timeOut: new Date(car.timeOut),
-      timeIn: new Date(car.timeIn),
-    }));
-  }
+  window.db.ref('carList').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      carList = data.map(car => ({
+        ...car,
+        timeOut: new Date(car.timeOut),
+        timeIn: new Date(car.timeIn),
+      }));
+    } else {
+      carList = [];
+    }
+    renderCarList();
+  });
   const idCounter = localStorage.getItem('carIdCounter');
   if (idCounter) carIdCounter = Number(idCounter);
 }
