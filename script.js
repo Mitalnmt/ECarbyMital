@@ -189,7 +189,7 @@ function updateCountdowns() {
       overdueNotifiedIds.delete(car.id);
     }
   });
-  renderCarList();
+  // renderCarList(); // BỎ để đồng bộ tuyệt đối
 }
 
 // Toggle trạng thái thanh toán
@@ -264,7 +264,6 @@ function changeTime(index, delta = 1) {
 function toggleDone(index) {
   const car = carList[index];
   if (car.isNullTime) {
-    // Nếu đang null, bỏ null, bỏ done, bỏ nullStartTime
     car.isNullTime = false;
     car.done = false;
     car.nullStartTime = undefined;
@@ -279,8 +278,26 @@ function toggleDone(index) {
     }
     car.pausedAt = undefined;
   }
+  // Cập nhật UI cục bộ cho dòng này
+  const tbody = document.getElementById('car-list').getElementsByTagName('tbody')[0];
+  const row = tbody.rows[index];
+  if (row) {
+    // Cập nhật nút Resume/Done
+    const btn = row.cells[5].querySelector('button.btn.btn-success');
+    if (btn) {
+      btn.textContent = car.done ? 'Resume' : 'Done';
+    }
+    // Cập nhật class dòng
+    row.classList.remove('done', 'overdue', 'null-time-done');
+    if (car.isNullTime) {
+      row.classList.add('null-time-done');
+    } else if (car.done) {
+      row.classList.add('done');
+    } else if (getRemainingTimeInMillis(car.timeIn, car) <= 0) {
+      row.classList.add('overdue');
+    }
+  }
   saveCarListToStorage();
-  // renderCarList(); // BỎ
 }
 
 // Xóa xe khỏi danh sách
