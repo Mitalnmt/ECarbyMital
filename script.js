@@ -136,8 +136,7 @@ function renderCarList() {
     // Không render dòng phụ nữa
   });
 
-  // Cập nhật đếm ngược mỗi giây
-  setTimeout(updateCountdowns, 1000);
+  // setTimeout(updateCountdowns, 1000); // BỎ, sẽ gọi ở ngoài
 }
 
 // Đếm ngược thời gian
@@ -190,6 +189,20 @@ function updateCountdowns() {
     }
   });
   // renderCarList(); // BỎ để đồng bộ tuyệt đối
+  // Cập nhật countdown cho từng dòng (nếu bảng đã render)
+  const tbody = document.getElementById('car-list').getElementsByTagName('tbody')[0];
+  if (tbody) {
+    for (let i = 0; i < carList.length; i++) {
+      const row = tbody.rows[i];
+      if (row) {
+        const countdownCell = row.cells[4];
+        if (countdownCell) {
+          countdownCell.innerHTML = `<span class="countdown">${getRemainingTime(carList[i].timeIn, carList[i])}</span>`;
+        }
+      }
+    }
+  }
+  setTimeout(updateCountdowns, 1000);
 }
 
 // Toggle trạng thái thanh toán
@@ -276,7 +289,7 @@ function toggleDone(index) {
       const now = new Date();
       car.timeIn = new Date(now.getTime() + car.pausedAt);
     }
-    car.pausedAt = undefined;
+    car.pausedAt = undefined; // Đảm bảo xóa pausedAt khi resume
   }
   // Cập nhật UI cục bộ cho dòng này
   const tbody = document.getElementById('car-list').getElementsByTagName('tbody')[0];
@@ -310,12 +323,21 @@ function deleteCar(index) {
 
 // --- Lưu trữ Firebase Realtime Database ---
 function saveCarListToStorage() {
-  // Chuyển Date thành string ISO để lưu
-  const data = carList.map(car => ({
-    ...car,
-    timeOut: car.timeOut.toISOString(),
-    timeIn: car.timeIn.toISOString(),
-  }));
+  // Chuyển Date thành string ISO để lưu, pausedAt giữ nguyên kiểu số hoặc undefined
+  const data = carList.map(car => {
+    const obj = {
+      ...car,
+      timeOut: car.timeOut.toISOString(),
+      timeIn: car.timeIn.toISOString(),
+    };
+    // pausedAt chỉ lưu nếu là số, nếu undefined thì bỏ
+    if (typeof car.pausedAt === 'number') {
+      obj.pausedAt = car.pausedAt;
+    } else {
+      delete obj.pausedAt;
+    }
+    return obj;
+  });
   window.db.ref('carList').set(data);
   localStorage.setItem('carIdCounter', carIdCounter); // vẫn lưu idCounter local
 }
@@ -324,11 +346,22 @@ function loadCarListFromStorage() {
   window.db.ref('carList').on('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      carList = data.map(car => ({
-        ...car,
-        timeOut: new Date(car.timeOut),
-        timeIn: new Date(car.timeIn),
-      }));
+      carList = data.map(car => {
+        const obj = {
+          ...car,
+          timeOut: new Date(car.timeOut),
+          timeIn: new Date(car.timeIn),
+        };
+        // pausedAt phải là số hoặc undefined
+        if (typeof car.pausedAt === 'number') {
+          obj.pausedAt = car.pausedAt;
+        } else if (typeof car.pausedAt === 'string' && car.pausedAt !== '') {
+          obj.pausedAt = Number(car.pausedAt);
+        } else {
+          obj.pausedAt = undefined;
+        }
+        return obj;
+      });
     } else {
       carList = [];
     }
@@ -342,6 +375,7 @@ function loadCarListFromStorage() {
 loadCarListFromStorage();
 loadSettings();
 renderCarList();
+updateCountdowns();
 
 // --- Xóa tất cả ---
 let confirmDeleteAllCount = 0;
