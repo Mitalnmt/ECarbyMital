@@ -195,15 +195,12 @@ function updateCountdowns() {
 // Toggle trạng thái thanh toán
 function togglePaid(index) {
   carList[index].paid = !carList[index].paid;
-  saveCarListToStorage();
   // Cập nhật lại nút trạng thái, không render lại toàn bộ bảng
   const tbody = document.getElementById('car-list').getElementsByTagName('tbody')[0];
   const row = tbody.rows[index];
   if (row) {
     const btn = row.cells[1].querySelector('button.btn-status');
     if (btn) {
-      btn.disabled = true; // Chống double click nhanh
-      setTimeout(() => { btn.disabled = false; }, 10);
       if (carList[index].paid) {
         btn.classList.remove('btn-warning');
         btn.classList.add('btn-success');
@@ -215,6 +212,8 @@ function togglePaid(index) {
       }
     }
   }
+  // Lưu dữ liệu sau khi đã cập nhật UI
+  saveCarListToStorage();
 }
 
 // Đổi mã xe
