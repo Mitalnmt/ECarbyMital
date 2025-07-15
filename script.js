@@ -24,7 +24,7 @@ function selectCarCode(carCode) {
       carList[changeCarIndex].carCode = carCode;
       changeCarIndex = null;
       saveCarListToStorage();
-      renderCarList();
+      // renderCarList(); // BỎ
     }
   }, 100); // Đợi modal đóng xong mới render lại bảng
 }
@@ -57,7 +57,7 @@ function addCar(carCode) {
 
   carList.push(car);
   saveCarListToStorage();
-  renderCarList();
+  // renderCarList(); // BỎ
 
   // Đóng modal sau khi chọn xe
   const modalEl = document.getElementById('carModal');
@@ -241,7 +241,6 @@ function changeTime(index, delta = 1) {
 
   car.timeIn = newTimeIn;
   saveCarListToStorage();
-
   // Chỉ cập nhật lại countdown và class cho dòng này
   const tbody = document.getElementById('car-list').getElementsByTagName('tbody')[0];
   const row = tbody.rows[index];
@@ -281,7 +280,7 @@ function toggleDone(index) {
     car.pausedAt = undefined;
   }
   saveCarListToStorage();
-  renderCarList();
+  // renderCarList(); // BỎ
 }
 
 // Xóa xe khỏi danh sách
@@ -289,7 +288,7 @@ function deleteCar(index) {
   if (!confirm('Bạn có chắc chắn muốn xóa dòng này?')) return;
   carList.splice(index, 1);
   saveCarListToStorage();
-  renderCarList();
+  // renderCarList(); // BỎ
 }
 
 // --- Lưu trữ Firebase Realtime Database ---
@@ -352,7 +351,7 @@ if (confirmDeleteAllBtn) {
     if (confirmDeleteAllCount >= 5) {
       carList = [];
       saveCarListToStorage();
-      renderCarList();
+      // renderCarList(); // BỎ
       if (confirmDeleteAllModal) confirmDeleteAllModal.hide();
     }
   });
@@ -385,7 +384,7 @@ function changeTimeByDelta(deltaMin) {
   }
   car.timeIn = newTimeIn;
   saveCarListToStorage();
-  renderCarList();
+  // renderCarList(); // BỎ
 }
 
 // Gán event listener một lần duy nhất
@@ -417,7 +416,7 @@ if (nullTimeBtn) {
     car.done = true;
     car.nullStartTime = Date.now();
     saveCarListToStorage();
-    renderCarList();
+    // renderCarList(); // BỎ
     if (timeModal) timeModal.hide();
   };
 }
@@ -463,7 +462,7 @@ if (rowActionNoteBtn) {
       if (note !== null) {
         car.note = note.trim();
         saveCarListToStorage();
-        renderCarList();
+        // renderCarList(); // BỎ
       }
     }
     if (rowActionModal) rowActionModal.hide();
