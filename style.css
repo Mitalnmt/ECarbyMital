@@ -72,20 +72,28 @@
 
 #bottomBar {
   position: fixed;
-  bottom: 0;
   left: 0;
+  bottom: 0;
   width: 100vw;
   background: #fff;
   border-top: 1px solid #ddd;
-  z-index: 1050;
+  z-index: 9999;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+  height: 60px;
 }
 body {
-  padding-bottom: 140px; /* Tăng padding cho máy tính để không che dòng nào bởi nút nổi */
+  padding-bottom: 80px; /* Để không bị che bảng bởi thanh dưới */
 }
 
-@media (max-width: 600px) {
-  body {
-    padding-bottom: 170px; /* Mobile vẫn giữ padding lớn hơn */
-  }
+.btn-status {
+  min-width: 2.5em;
+  font-weight: bold;
+  font-size: 1.1em;
+  padding: 0.3em 1em;
+}
+
+.btn-status:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) inset;
+  opacity: 0.85;
 }

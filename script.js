@@ -99,7 +99,9 @@ function renderCarList() {
 
     // Trạng thái
     const cell2 = row.insertCell(1);
-    cell2.innerHTML = `<input type="checkbox" ${car.paid ? 'checked' : ''} onclick="togglePaid(${index})">`;
+    // Nút trạng thái: 'C' (vàng) hoặc 'R' (xanh)
+    const isPaid = car.paid;
+    cell2.innerHTML = `<button class="btn btn-status ${isPaid ? 'btn-success' : 'btn-warning'}" onclick="togglePaid(${index})">${isPaid ? 'R' : 'C'}</button>`;
     if (car.note) {
       cell2.innerHTML += ` <span class='car-note'>${car.note}</span>`;
     }
@@ -194,13 +196,23 @@ function updateCountdowns() {
 function togglePaid(index) {
   carList[index].paid = !carList[index].paid;
   saveCarListToStorage();
-  // Chỉ cập nhật checkbox, không render lại toàn bộ bảng
+  // Cập nhật lại nút trạng thái, không render lại toàn bộ bảng
   const tbody = document.getElementById('car-list').getElementsByTagName('tbody')[0];
   const row = tbody.rows[index];
   if (row) {
-    const checkbox = row.cells[1].querySelector('input[type="checkbox"]');
-    if (checkbox) {
-      checkbox.checked = carList[index].paid;
+    const btn = row.cells[1].querySelector('button.btn-status');
+    if (btn) {
+      btn.disabled = true; // Chống double click nhanh
+      setTimeout(() => { btn.disabled = false; }, 10);
+      if (carList[index].paid) {
+        btn.classList.remove('btn-warning');
+        btn.classList.add('btn-success');
+        btn.textContent = 'R';
+      } else {
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-warning');
+        btn.textContent = 'C';
+      }
     }
   }
 }
@@ -659,60 +671,3 @@ if (enableNotifyBtn) {
     });
   };
 }
-
-// --- Đăng nhập khi vào trang ---
-window.addEventListener('DOMContentLoaded', function() {
-  const loginModalEl = document.getElementById('loginModal');
-  const loginUsernameInput = document.getElementById('loginUsername');
-  const loginSubmitBtn = document.getElementById('loginSubmitBtn');
-  let loginModal = null;
-  if (loginModalEl) {
-    loginModal = bootstrap.Modal.getOrCreateInstance(loginModalEl);
-    // Kiểm tra localStorage
-    const savedUsername = localStorage.getItem('@');
-    if (!savedUsername) {
-      loginModal.show();
-      setTimeout(() => { if (loginUsernameInput) loginUsernameInput.focus(); }, 400);
-    }
-    if (loginSubmitBtn && loginUsernameInput) {
-      loginSubmitBtn.onclick = function() {
-        const username = loginUsernameInput.value.trim();
-        if (!username) {
-          loginUsernameInput.classList.add('is-invalid');
-          loginUsernameInput.focus();
-          return;
-        }
-        localStorage.setItem('@', username);
-        loginModal.hide();
-      };
-      loginUsernameInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') loginSubmitBtn.click();
-      });
-      loginUsernameInput.addEventListener('input', function() {
-        loginUsernameInput.classList.remove('is-invalid');
-      });
-    }
-    // Nút View mở link mới
-    const loginViewBtn = document.getElementById('loginViewBtn');
-    const loginViewUrl = 'https://mitalnmt.github.io/ECarView/'; // Có thể thay đổi sau này
-    if (loginViewBtn) {
-      loginViewBtn.onclick = function() {
-        window.open(loginViewUrl, '_blank');
-      };
-    }
-  }
-  // Nút logout trong modal cài đặt
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.onclick = function() {
-      localStorage.removeItem('@');
-      // Đóng modal cài đặt nếu đang mở
-      if (settingsModal) settingsModal.hide();
-      // Hiện lại modal đăng nhập
-      if (loginModal) {
-        setTimeout(() => loginModal.show(), 300);
-        setTimeout(() => { if (loginUsernameInput) loginUsernameInput.focus(); }, 700);
-      }
-    };
-  }
-});
