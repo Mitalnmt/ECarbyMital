@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập ECar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            background: #fff;
+            padding: 32px 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 320px;
+        }
+        .login-container input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .login-container input[type="password"] {
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 20px;
+        }
+        .login-container button {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #1976d2;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-container button:hover {
+            background: #1565c0;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <label for="login">Tên đăng nhập</label>
+        <input type="password" id="login" placeholder="Nhập tên đăng nhập" autocomplete="off">
+        <div class="button-group">
+            <button id="loginBtn">Đăng nhập</button>
+            <button id="viewBtn" style="background:#43a047;">View</button>
+        </div>
+        <div id="error" style="color:red;min-height:20px;"></div>
+    </div>
+    <script src="login.js"></script>
+</body>
+</html> 
