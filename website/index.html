@@ -1,0 +1,681 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="icon.png">
+  <title>Mital Manage</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      justify-content: space-between;
+    }
+
+    .modal-content {
+      max-height: 90vh; /* Chiều cao tối đa 90% viewport height */
+      overflow-y: auto;
+    }
+
+    /* Tùy chỉnh cho modal chọn xe */
+    #carModal .modal-dialog {
+      max-width: 95%;
+      margin: 10px auto;
+    }
+
+    #carModal .modal-body {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #carModal .mb-2 {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 5px;
+    }
+
+    #carModal .btn-secondary {
+      min-width: 60px;
+      margin: 2px !important;
+      padding: 8px 12px;
+    }
+
+    /* Responsive adjustments */
+    @media (min-width: 768px) {
+      #carModal .modal-dialog {
+        max-width: 700px;
+      }
+
+      #carModal .mb-2 {
+        justify-content: flex-start;
+      }
+
+      #carModal .btn-secondary {
+        min-width: 70px;
+        padding: 10px 15px;
+      }
+    }
+
+    .countdown {
+      font-weight: bold;
+      color: red;
+      font-size: 1.1em;
+    }
+    .countdown.urgent {
+      color: #d10000; /* Màu đỏ đậm khi gần hết giờ */
+      text-shadow: 0 0 5px rgba(255,0,0,0.3);
+    }
+
+    .done {
+      background-color: lightgreen;
+    }
+    .overdue {
+      background-color: #ff7f7f; /* Màu đỏ nhạt */
+      animation: blink 1s infinite alternate; /* Thêm hiệu ứng nhấp nháy */
+    }
+    @keyframes blink {
+      from { opacity: 1; }
+      to { opacity: 0.7; }
+    }
+
+    /* Bottom bar with floating design */
+    #bottomBar {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100vw;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(0,0,0,0.1);
+      z-index: 9999;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      height: 60px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 20px;
+      transition: all 0.3s ease;
+    }
+
+    #bottomBar .btn {
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    #bottomBar .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    #bottomBar .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Virtual spacer to prevent content from being hidden */
+    #bottomSpacer {
+      height: 50px; /* Reduced height since we have spacer row in table */
+      width: 100%;
+    }
+
+    /* Spacer row styling */
+    .spacer-row {
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .spacer-row td {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      height: 100px !important;
+    }
+
+    body {
+      padding-bottom: 80px; /* Giảm padding bottom vì đã có spacer row */
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      #bottomBar {
+        height: 55px;
+        padding: 0 15px;
+      }
+
+      #bottomBar .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+
+      #bottomSpacer {
+        height: 40px;
+      }
+
+      body {
+        padding-bottom: 60px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #bottomBar {
+        height: 50px;
+        padding: 0 10px;
+      }
+
+      #bottomBar .btn {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      #bottomSpacer {
+        height: 35px;
+      }
+
+      body {
+        padding-bottom: 50px;
+      }
+    }
+
+    /* Modal cài đặt - responsive cho mobile */
+    @media (max-width: 768px) {
+      #settingsModal .modal-dialog {
+        margin: 10px;
+        margin-bottom: 80px; /* Tạo khoảng cách với bottomBar */
+        max-height: calc(100vh - 90px); /* Giới hạn chiều cao */
+      }
+      
+      #settingsModal .modal-content {
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+      }
+      
+      #settingsModal .modal-footer {
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 10px;
+      }
+      
+      #settingsModal .modal-footer .btn {
+        flex: 1;
+        min-width: calc(50% - 5px);
+        margin: 2px 0;
+        font-size: 0.85rem;
+        padding: 6px 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #settingsModal .modal-dialog {
+        margin: 5px;
+        margin-bottom: 70px; /* Tăng khoảng cách cho màn hình nhỏ hơn */
+        max-height: calc(100vh - 80px);
+      }
+      
+      #settingsModal .modal-content {
+        max-height: calc(100vh - 90px);
+      }
+      
+      #settingsModal .modal-footer .btn {
+        font-size: 0.8rem;
+        padding: 5px 6px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Main content -->
+  <div class="container mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">Danh sách xe cho thuê</h3>
+          <button class="btn btn-outline-secondary btn-sm" id="fullscreenBtn" title="Toàn màn hình">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 0 0 1H1v1a.5.5 0 0 0 1 0V7h1a.5.5 0 0 0 0-1H1V1.5a.5.5 0 0 0-.5-.5z"/>
+        <path d="M14.5 1a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 1 0 1H16v1a.5.5 0 0 1-1 0V7h-1a.5.5 0 0 1 0-1h1V1.5a.5.5 0 0 1 .5-.5z"/>
+      </svg>
+    </button>
+
+    </div>
+    <table class="table table-striped" id="car-list">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>in4</th>
+          <th>Mã xe</th>
+          <th>Time</th>
+          <th>Còn lại</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- List of cars will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Floating bottom bar for Multiple Car Selection modal -->
+  <div id="multiSelectBottomBar" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:10001; background:#fff; border-top: 1px solid rgba(0,0,0,0.08); padding: 8px 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); height: 60px;">
+    <div class="container d-flex justify-content-center align-items-center w-100" style="gap:12px;">
+      <button class="btn btn-success" id="multiSelectGroupBtn" onclick="window.multipleCarSelection && window.multipleCarSelection.addSelectedCarsAsGroup()" disabled>
+        <i class="fas fa-layer-group"></i> Gộp thành nhóm
+      </button>
+      <button class="btn btn-primary" id="multiSelectAddBtn" onclick="window.multipleCarSelection && window.multipleCarSelection.addSelectedCarsIndividually()" disabled>
+        <i class="fas fa-plus"></i> Thêm riêng lẻ
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom bar with floating design -->
+  <div id="bottomBar">
+    <div class="d-flex align-items-center" style="flex:1; gap:8px;">
+      <button class="btn btn-secondary btn-sm" id="settingsBtn">Cài đặt</button>
+    </div>
+    <div class="d-flex justify-content-center align-items-center" style="flex:1;">
+      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#selectMultipleModal">
+        <i class="fas fa-car"></i> Chọn Xe
+      </button>
+    </div>
+    <div class="d-flex justify-content-end align-items-center" style="flex:1; gap:8px;">
+      <button class="btn btn-info btn-sm" id="activateMultiSelectBtn">Select</button>
+    </div>
+  </div>
+
+  <!-- Virtual spacer to prevent content from being hidden behind floating bottom bar -->
+  <div id="bottomSpacer"></div>
+
+  <!-- Floating selection action bar -->
+  <div id="selectionBar" class="shadow-sm" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:10000; background: rgba(255,255,255,0.97); backdrop-filter: blur(8px); border-top: 1px solid rgba(0,0,0,0.08); padding: 8px 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); height: 60px;">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div>
+        <span>Đã chọn: <b id="selectionCount">0</b> dòng</span>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <!-- Mobile: chỉ hiển thị các nút cần thiết nhất -->
+        <div class="d-flex d-md-none gap-1">
+          <button class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">
+            <i class="fas fa-times"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-primary" onclick="selectAllRows()">
+            <i class="fas fa-check-double"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" id="selectionDeleteBtn" onclick="deleteSelectedRows()" disabled>
+            <i class="fas fa-trash"></i>
+          </button>
+          <!-- Dropdown menu cho các tính năng khác -->
+          <div class="dropdown">
+            <button class="btn btn-sm btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><button class="dropdown-item" id="selectionGroupBtn" onclick="groupSelectedCars()" disabled>
+                <i class="fas fa-layer-group"></i> Gộp xe
+              </button></li>
+              <li><button class="dropdown-item" id="selectionUngroupBtn" onclick="ungroupSelectedCars()" disabled>
+                <i class="fas fa-layer-group"></i> Tách nhóm
+              </button></li>
+              <li><button class="dropdown-item" id="selectionTimeBtn" onclick="editTimeForSelectedCars()" disabled>
+                <i class="fas fa-clock"></i> Chỉnh thời gian
+              </button></li>
+              <li><button class="dropdown-item" id="selectionNoteBtn" onclick="editNoteForSelectedCars()" disabled>
+                <i class="fas fa-sticky-note"></i> Ghi chú
+              </button></li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Desktop: hiển thị tất cả nút -->
+        <div class="d-none d-md-flex gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">
+            <i class="fas fa-times"></i> Bỏ chọn
+          </button>
+          <button class="btn btn-sm btn-outline-primary" onclick="selectAllRows()">
+            <i class="fas fa-check-double"></i> Chọn tất cả
+          </button>
+          <button class="btn btn-sm btn-success" id="selectionGroupBtnDesktop" onclick="groupSelectedCars()" disabled>
+            <i class="fas fa-layer-group"></i> Gộp xe
+          </button>
+          <button class="btn btn-sm btn-warning" id="selectionUngroupBtnDesktop" onclick="ungroupSelectedCars()" disabled>
+            <i class="fas fa-layer-group"></i> Tách nhóm
+          </button>
+          <button class="btn btn-sm btn-info" id="selectionTimeBtnDesktop" onclick="editTimeForSelectedCars()" disabled>
+            <i class="fas fa-clock"></i> Chỉnh thời gian
+          </button>
+          <button class="btn btn-sm btn-secondary" id="selectionNoteBtnDesktop" onclick="editNoteForSelectedCars()" disabled>
+            <i class="fas fa-sticky-note"></i> Ghi chú
+          </button>
+          <button class="btn btn-sm btn-danger" id="selectionDeleteBtnDesktop" onclick="deleteSelectedRows()" disabled>
+            <i class="fas fa-trash"></i> Xóa đã chọn
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+<div class="modal fade" id="carModal" tabindex="-1" aria-labelledby="carModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="carModalLabel">Chọn Xe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2">
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A1')">A1</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A12')">A12</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A13')">A13</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A14')">A14</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A15')">A15</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A16')">A16</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A17')">A17</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A18')">A18</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A19')">A19</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('A20')">A20</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('AB')">AB</button>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('C1')">C1</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('C2')">C2</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('C3')">C3</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('C4')">C4</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('CC')">CC</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('CX')">CX</button>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('M1')">M1</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('M2')">M2</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('M3')">M3</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('D3')">D3</button>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('XĐ')">XĐ</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('XT')">XT</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('XV')">XV</button>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('S1')">S1</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('S2')">S2</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('S3')">S3</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('S4')">S4</button>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('03')">03</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('06')">06</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('09')">09</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('10')">10</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('25')">25</button>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('ĐM')">ĐM</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('ĐC')">ĐC</button>
+            <button class="btn btn-secondary m-1" onclick="selectCarCode('VH')">VH</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal xác nhận xóa tất cả -->
+  <div class="modal fade" id="confirmDeleteAllModal" tabindex="-1" aria-labelledby="confirmDeleteAllLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteAllLabel">Xác nhận xóa tất cả</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Bạn chắc chắn muốn xóa toàn bộ danh sách xe? <br>Hãy ấn nút xác nhận 5 lần để thực hiện!</p>
+          <button class="btn btn-danger" id="confirmDeleteAllBtn">Xác nhận (<span id="confirmDeleteAllCount">0</span>/5)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal chọn thời gian cho từng xe -->
+  <div class="modal fade" id="timeModal" tabindex="-1" aria-labelledby="timeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="timeModalLabel">Chỉnh thời gian xe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-2">
+            <button class="btn btn-danger m-1" id="minus5Btn">-5 min</button>
+            <button class="btn btn-warning m-1" id="minus1Btn">-1 min</button>
+            <button class="btn btn-success m-1" id="plus1Btn">+1 min</button>
+            <button class="btn btn-success m-1" id="plus5Btn">+5 min</button>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-outline-danger m-1" id="minusXBtn">-1x</button>
+            <button class="btn btn-outline-success m-1" id="plusXBtn">+1x</button>
+          </div>
+          <div>
+            <button class="btn btn-secondary m-1" id="nullTimeBtn">Đi nhiêu tính nhiêu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal cài đặt -->
+  <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="settingsModalLabel">Cài đặt</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="defaultTimeInput" class="form-label">Thời gian đếm ngược mặc định:</label>
+            <div class="row">
+              <div class="col-6">
+                <label for="defaultMinutesInput" class="form-label">Phút:</label>
+                <input type="number" class="form-control" id="defaultMinutesInput" min="0" max="59" value="15">
+              </div>
+              <div class="col-6">
+                <label for="defaultSecondsInput" class="form-label">Giây:</label>
+                <input type="number" class="form-control" id="defaultSecondsInput" min="0" max="59" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="xStepMinutesInput" class="form-label">Bước tăng/giảm cho nút -1x/+1x (phút):</label>
+            <input type="number" class="form-control" id="xStepMinutesInput" min="1" max="180" value="15">
+          </div>
+
+          
+          <div class="mb-3">
+            <label class="form-label">Chỉnh sửa Menu Xe:</label>
+            <div class="d-flex gap-2 mb-2">
+              <button class="btn btn-primary" id="openCarMenuEditorBtn">Mở Editor</button>
+              <button class="btn btn-warning" id="resetCarMenuBtn">Reset về mặc định</button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Chức năng nhanh:</label>
+            <div class="d-flex gap-2 mb-2">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <!-- Removed redundant 'Chọn nhiều dòng' button in settings -->
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning" id="backBtn" title="Quay lại (Ctrl+Z)">← Back</button>
+          <button type="button" class="btn btn-info" id="exportCarsBtn">Xuất danh sách xe</button>
+          <button type="button" class="btn btn-warning" id="enableNotifyBtn">Bật thông báo</button>
+          <button type="button" class="btn btn-danger" id="deleteAllBtn">Xóa tất cả</button>
+          <button type="button" class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" id="saveSettingsBtn">Lưu cài đặt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal thao tác dòng -->
+  <div class="modal fade" id="rowActionModal" tabindex="-1" aria-labelledby="rowActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rowActionModalLabel">Chọn thao tác</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <button class="btn btn-info m-2" id="rowActionTimeBtn">Time</button>
+          <button class="btn btn-danger m-2" id="rowActionDeleteBtn">Xóa</button>
+          <button class="btn btn-secondary m-2" id="rowActionNoteBtn">Ghi chú</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal chỉnh sửa menu xe -->
+  <div class="modal fade" id="carMenuEditorModal" tabindex="-1" aria-labelledby="carMenuEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="carMenuEditorModalLabel">Chỉnh sửa Menu Xe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="carMenuEditorContainer">
+            <!-- Nội dung editor sẽ được render ở đây -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div id="trashBin" class="trash-bin" ondragover="carMenuEditor.onTrashDragOver(event)" ondrop="carMenuEditor.onTrashDrop(event)">
+            🗑️ Thùng rác
+          </div>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-primary" id="applyCarMenuChangesBtn">Áp dụng thay đổi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal chọn nhiều xe -->
+  <div class="modal fade" id="selectMultipleModal" tabindex="-1" aria-labelledby="selectMultipleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="selectMultipleModalLabel">Chọn Nhiều Xe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="multipleCarSelectionContainer">
+            <!-- Nội dung chọn xe sẽ được render ở đây -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <!-- Buttons removed - using inline grouping options instead -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal chỉnh thời gian nhiều xe -->
+  <div class="modal fade" id="multiTimeModal" tabindex="-1" aria-labelledby="multiTimeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="multiTimeModalLabel">Chỉnh thời gian nhiều xe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="mb-3">Đã chọn <span id="multiTimeCount">0</span> xe</p>
+          <div class="mb-2">
+            <button class="btn btn-danger m-1" onclick="changeMultiTime(-5)">-5 min</button>
+            <button class="btn btn-warning m-1" onclick="changeMultiTime(-1)">-1 min</button>
+            <button class="btn btn-success m-1" onclick="changeMultiTime(1)">+1 min</button>
+            <button class="btn btn-success m-1" onclick="changeMultiTime(5)">+5 min</button>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-outline-danger m-1" onclick="changeMultiTime(-xStepMinutes)">-1x</button>
+            <button class="btn btn-outline-success m-1" onclick="changeMultiTime(xStepMinutes)">+1x</button>
+          </div>
+          <div>
+            <button class="btn btn-secondary m-1" onclick="setMultiTimeNull()">Đi nhiêu tính nhiêu</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal ghi chú nhiều xe -->
+  <div class="modal fade" id="multiNoteModal" tabindex="-1" aria-labelledby="multiNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="multiNoteModalLabel">Ghi chú nhiều xe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3">Đã chọn <span id="multiNoteCount">0</span> xe</p>
+          <div class="mb-3">
+            <label for="multiNoteInput" class="form-label">Ghi chú:</label>
+            <textarea class="form-control" id="multiNoteInput" rows="3" placeholder="Nhập ghi chú cho tất cả xe đã chọn..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="applyMultiNote()">Áp dụng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div id="overdueToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="overdueToastBody">
+          Có xe vừa hết thời gian!
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAj8MNZXEN1tQaOqZ4jGxGhX04IWAW437s",
+      authDomain: "xehtml.firebaseapp.com",
+      databaseURL: "https://xehtml-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "xehtml",
+      storageBucket: "xehtml.firebasestorage.app",
+      messagingSenderId: "295057234622",
+      appId: "1:295057234622:web:814425305c34e22cf81cef",
+      measurementId: "G-CEQ6GP1D3Z"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+  </script>
+  <script src="script.js"></script>
+  <script src="car-menu-editor.js"></script>
+  <script src="multiple-car-selection.js"></script>
+</body>
+</html> 
+ 

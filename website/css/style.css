@@ -1,0 +1,77 @@
+/* Chừa chỗ để bottom bar không che nội dung */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    padding-bottom: 64px; /* >= height của bottomBar */
+  }
+  
+  .page {
+    padding: 16px;
+  }
+  
+  /* Bottom bar */
+  #bottomBar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  
+    height: 60px;
+    padding: 0 12px;
+  
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-around;
+  
+    background: rgba(255, 255, 255, 0.95);
+    border-top: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    z-index: 9999;
+  }
+  
+  .bb-btn {
+    flex: 1;
+    height: 30px; /* Chiều cao của nút */
+    border: 1px solid rgba(0,0,0,0.15); /* Màu viền của nút */
+    background: #fff; /* Màu nền của nút */
+    border-radius: 10px; /* Bo tròn của nút */
+    cursor: pointer;
+  }
+  
+  .bb-btn-primary {
+    background: #0d6efd;
+    color: #fff;
+    border-color: #0d6efd;
+  }
+  #bottomBar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  
+    width: 100%;      /* Mobile */
+    height: 40px;
+    margin: 0 auto;
+  
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  
+    background: rgba(255,255,255,0.95);
+    border-top: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    z-index: 9999;
+  }
+  
+  /* Desktop */
+  @media (min-width: 992px) {
+    #bottomBar {
+      width: 70%;
+    }
+  }
+  
+  /* tránh che nội dung */
+  body {
+    padding-bottom: 60px; /* Chiều cao của phần trắng bottom bar */
+  }
